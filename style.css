@@ -1,0 +1,32 @@
+      :root {
+        --font: "Arial Rounded MT Bold", "Trebuchet MS", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        --gold: #ffd166;
+        --cyan: #4cc9f0;
+        --green: #62c878;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        height: 100%; margin: 0; padding: 0; overflow: hidden;
+        background: #0d1233; overscroll-behavior: none;
+      }
+      body {
+        font-family: var(--font); color: #fff;
+        -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+        user-select: none; -webkit-user-select: none; touch-action: none;
+      }
+      canvas { display: block; touch-action: none; }
+      button { font-family: inherit; }
+      #app { position: fixed; inset: 0; overflow: hidden; }
+      #stage { position: absolute; inset: 0; }
+      .hidden { display: none !important; }
+      .out { opacity: 0 !important; animation: none !important; pointer-events: none !important; }
+
+      #vignette {
+        position: absolute; inset: 0; z-index: 6; pointer-events: none;
+        background:
+          radial-gradient(130% 100% at 50% 40%, transparent 54%, rgba(5, 8, 24, 0.45) 100%),
+          linear-gradient(180deg, rgba(5, 8, 24, 0.42) 0%, rgba(5, 8, 24, 0.15) 10%, transparent 22%);
+      }
+
