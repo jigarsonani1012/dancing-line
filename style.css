@@ -113,3 +113,83 @@
       }
       #tapNow svg { width: 2.1rem; height: 2.1rem; fill: #fff; }
 
+      /* ------------------------------ FX ------------------------------- */
+      #fx { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+      .ripple { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 999px; border: 2px solid rgba(255,255,255,.85); animation: ripple .5s ease-out forwards; }
+      #toast {
+        position: absolute; left: 50%; top: 30%; transform: translateX(-50%); z-index: 16; pointer-events: none;
+        display: flex; align-items: center; gap: .5rem; font-size: 1.3rem; font-weight: 800; letter-spacing: .22em;
+        text-transform: uppercase; color: var(--gold); white-space: nowrap; opacity: 0;
+        text-shadow: 0 0 22px rgba(255,209,102,.6), 0 3px 10px rgba(0,0,0,.45);
+      }
+      #toast.show { animation: toast 1.5s cubic-bezier(.22,1,.36,1) both; }
+      #toast svg { width: 1.5rem; height: 1.5rem; fill: var(--gold); }
+      #flash { position: absolute; inset: 0; z-index: 17; pointer-events: none; background: #fff; opacity: 0; }
+      #flash.on { animation: flash .45s ease-out both; }
+      #fader { position: absolute; inset: 0; z-index: 70; pointer-events: none; background: #000; opacity: 0; transition: opacity .26s ease; }
+      #fader.on { opacity: 1; }
+
+      /* ---------------------------- screens ---------------------------- */
+      .screen {
+        position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+        padding: calc(.8rem + var(--safe-top)) .8rem calc(.8rem + var(--safe-bottom));
+      }
+      .dim { background: rgba(6, 9, 30, .55); animation: fade .25s ease both; }
+      .panel {
+        width: min(88vw, 360px);
+        max-height: min(94vh, 94dvh);
+        overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+        border-radius: 26px; padding: clamp(.9rem, 4vh, 1.6rem) 1.4rem clamp(.85rem, 3.2vh, 1.4rem); text-align: center;
+        background: linear-gradient(165deg, rgba(22, 28, 66, .82), rgba(9, 12, 36, .86));
+        backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.14);
+        box-shadow: 0 30px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12);
+        animation: pop .4s cubic-bezier(.22,1,.36,1) both;
+        transform: translateZ(0); will-change: transform, opacity;
+      }
+      .panel::-webkit-scrollbar { display: none; }
+      .panel h2 { margin: 0; font-size: clamp(.9rem, 3.4vh, 1.1rem); font-weight: 800; letter-spacing: .28em; text-indent: .28em; text-transform: uppercase; color: rgba(255,255,255,.88); }
+      .bigpct { margin: clamp(.3rem, 2vh, .55rem) 0 0; font-size: clamp(2.4rem, 13vh, 4.4rem); font-weight: 800; line-height: 1; letter-spacing: -.02em; text-shadow: 0 4px 20px rgba(0,0,0,.4); }
+      .bigpct small { font-size: clamp(1.1rem, 5.4vh, 1.8rem); font-weight: 800; opacity: .8; }
+      .mini { position: relative; margin: clamp(.7rem, 3.2vh, 1.35rem) .6rem .5rem; height: 6px; border-radius: 3px; background: rgba(255,255,255,.22); }
+      .miniFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: #fff; }
+      .meta {
+        display: inline-flex; align-items: center; justify-content: center; gap: 1.2rem;
+        margin: clamp(.5rem, 2.6vh, .95rem) auto 0; padding: 0.38rem 1rem; border-radius: 999px;
+        background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.88rem; font-weight: 800; color: rgba(255, 255, 255, 0.92);
+      }
+      .meta span { display: inline-flex; align-items: center; gap: .35rem; }
+      .meta svg { width: 1.05rem; height: 1.05rem; }
+      .crownRow { display: flex; justify-content: center; gap: .5rem; margin-top: clamp(.5rem, 2.2vh, .9rem); }
+      .crownRow svg { width: 1.7rem; height: 1.7rem; fill: rgba(255,255,255,.28); }
+      .crownRow svg.got { fill: var(--gold); filter: drop-shadow(0 0 8px rgba(255,209,102,.8)); }
+      .crownRow svg.used { fill: var(--gold); opacity: .35; }
+      .btns { display: flex; flex-direction: column; gap: clamp(.4rem, 1.6vh, .55rem); margin-top: clamp(.7rem, 3vh, 1.15rem); }
+      .btn {
+        width: 100%; border: 0; border-radius: 999px; padding: clamp(.6rem, 3vh, .82rem) 1.1rem; font-size: clamp(.84rem, 2.6vh, .96rem); font-weight: 800;
+        letter-spacing: .1em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center;
+        justify-content: center; gap: .5rem; transition: transform .12s, filter .2s, background .2s;
+        transform: translateZ(0); touch-action: manipulation; white-space: nowrap; box-sizing: border-box; flex: none;
+      }
+      .btn:active { transform: scale(.96); }
+      .btn.primary { background: #fff; color: #17193a; box-shadow: 0 10px 26px rgba(255,255,255,.18); }
+      .btn.primary:hover { filter: brightness(1.05); }
+      .btn.gold {
+        background: linear-gradient(90deg, #ffd166, #ff9f43); color: #2b1d00;
+        box-shadow: 0 10px 26px rgba(255,180,60,.35);
+      }
+      .btn.gold svg { fill: #2b1d00; width: 1.15rem; height: 1.15rem; flex-shrink: 0; }
+      .cntPill {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 0.16rem 0.55rem; border-radius: 999px;
+        background: rgba(0, 0, 0, 0.16); color: #2b1d00;
+        font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em;
+        margin-left: 0.2rem; text-transform: uppercase;
+      }
+      .btn.ghost { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+      .btn.ghost:hover { background: rgba(255,255,255,.18); }
+      .btn:disabled { opacity: .35; cursor: default; transform: none; }
+      .btn svg { width: 1.05rem; height: 1.05rem; fill: currentColor; }
+      .badge { display: inline-block; margin-top: .6rem; padding: .2rem .8rem; border-radius: 999px; font-size: .74rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; background: linear-gradient(90deg, #ffd166, #ff9f43); color: #2b1d00; animation: wiggle 1.4s ease-in-out infinite; }
+      .note { margin-top: .6rem; font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.75); }
+
