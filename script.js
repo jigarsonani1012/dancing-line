@@ -282,3 +282,268 @@
         }
       }
 
+      /* ================================================================
+         3. LEVELS — 8 Authentic Themed Levels
+         ================================================================ */
+      const BASE_COLORS = {
+        trunk: 0x8b5a3c, leaf: 0x2f9e5b, leaf2: 0x63c46e, rock: 0xa8b6c4, accent: 0xff7bac, accent2: 0xfff275,
+        snow: 0xffffff, sand: 0xf1c58f, cactus: 0x4f9d5c, pyramid: 0xd28d4d, crystal: 0x7ae7ff, crystal2: 0xc77dff,
+        ice: 0x8fd8ff, key: 0xfafafa, keySide: 0xd6d6d6, keyBlack: 0x262626, guide: 0xffffff, wall: 0xffffff, gem: 0xffd23f, marker: 0xffffff,
+      };
+      const GROUND_Y = -2.2;
+
+      const LEVELS = [
+        {
+          id: "beginning", name: "The Beginning", stars: 1, bpm: 110, upb: 2.8, guide: true, guideDots: false, birds: true, clouds: 0xffffff,
+          ambient: { type: "petals", color: 0xffd1e3, size: 0.16, opacity: 0.55, count: 90 },
+          colors: { sky: 0xaec8ff, horizon: 0xe9f1ff, fog: 0xdce8ff, floorTop: 0xffffff, floorSide: 0xd8e2f3, line: 0x38b9e6, wall: 0xffffff, gem: 0xffc93c, sun: 0xffffff, marker: 0xffffff },
+          song: {
+            bpm: 110, voice: "marimba", arpVoice: "marimba", arpVol: 0.035, pad: true, melVol: 0.11,
+            chords: [{ b: 48, t: [60, 64, 67] }, { b: 43, t: [59, 62, 67] }, { b: 45, t: [57, 60, 64] }, { b: 41, t: [57, 60, 65] }],
+            arp: [0, 1, 2, 1, 0, 2, 1, 2], bass: [[0, 0, 0.28], [8, 0, 0.2], [12, 7, 0.16]],
+            drums: { kick: [0, 8], snare: [4, 12], hat: [2, 6, 10, 14], open: [], kickVol: 0.35, snareVol: 0.12, hatVol: 0.04 },
+            melody: [[0, 72, 1], [4, 74, 1], [8, 76, 1], [12, 79, 1], [16, 76, 1], [20, 74, 1], [24, 72, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 3.2, style: "meadow", cam: 1.12 },
+            { bars: 4, phrase: [2], w: 3.2, style: "meadow" },
+            { bars: 4, phrase: [2, 2, 4], w: 3.0, style: "forest" },
+            { bars: 4, phrase: [4, 2, 2], w: 3.0, style: "forest", walls: true },
+            { bars: 4, phrase: [1, 1, 2], w: 3.0, style: "meadow" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.8, style: "forest", walls: true, reveal: "drop" },
+            { bars: 4, phrase: [4], w: 2.8, style: "meadow", cam: 1.1 },
+            { bars: 4, phrase: [2, 2, 1, 1, 2], w: 2.8, style: "forest" },
+            { bars: 4, phrase: [1, 1, 1, 1, 4], w: 2.6, style: "meadow", walls: true },
+            { bars: 4, phrase: [2], w: 2.6, style: "forest", reveal: "drop", cam: 1.15 },
+          ],
+        },
+        {
+          id: "piano", name: "The Piano", stars: 2, bpm: 125, upb: 3.0, clouds: 0xfff4e4,
+          ambient: { type: "sparkle", color: 0xffe9b0, size: 0.12, opacity: 0.5, count: 80 },
+          colors: { sky: 0xffc48f, horizon: 0xfff1e0, fog: 0xffe4c8, floorTop: 0xffd9a8, floorSide: 0xe0a068, line: 0xff7f27, wall: 0xffe7cf, gem: 0x4cc9f0, sun: 0xfff7e6, marker: 0x3a2a1a },
+          song: {
+            bpm: 125, voice: "piano", arpVoice: "piano", arpVol: 0.04, pad: true, melVol: 0.14,
+            chords: [{ b: 48, t: [60, 63, 67] }, { b: 44, t: [56, 60, 63] }, { b: 51, t: [63, 67, 70] }, { b: 46, t: [58, 62, 65] }],
+            arp: [0, 1, 2, 1, 0, 1, 2, 1], bass: [[0, 0, 0.3], [6, 0, 0.18], [8, 12, 0.22], [14, 7, 0.18]],
+            drums: { kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], open: [14], kickVol: 0.45, snareVol: 0.18, hatVol: 0.06 },
+            melody: [[0, 72, 0.75], [3, 75, 0.75], [6, 79, 1], [10, 77, 0.5], [12, 75, 1], [16, 72, 0.75], [19, 70, 0.75], [22, 67, 1], [26, 70, 0.5], [28, 72, 1.5]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.8, style: "keys", cam: 1.1 },
+            { bars: 4, phrase: [2], w: 2.6, style: "keys" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.6, style: "keys" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.4, style: "keys", walls: true },
+            { bars: 4, phrase: [4, 1, 1, 2], w: 2.4, style: "keys" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 2.4, style: "keys", walls: true, cam: 0.94 },
+            { bars: 4, phrase: [2, 2, 4], w: 2.4, style: "keys", reveal: "drop" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.2, style: "keys" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.2, style: "keys", walls: true },
+            { bars: 4, phrase: [4], w: 2.2, style: "keys", cam: 1.12 },
+          ],
+        },
+        {
+          id: "savanna", name: "The Savanna", stars: 2, bpm: 118, upb: 3.0, birds: true, clouds: 0xfff2d8,
+          ground: { y: GROUND_Y, color: 0xd9a441 }, sunDisc: { color: 0xffe08a, size: 14 },
+          ambient: { type: "dust", color: 0xffe7b8, size: 0.13, opacity: 0.3, count: 90 },
+          colors: { sky: 0xffb85c, horizon: 0xffe3a8, fog: 0xf7d391, floorTop: 0xfff0c2, floorSide: 0xdcb46a, line: 0x1e6fd9, wall: 0xf3d79a, gem: 0xff5d9e, sun: 0xffe08a, marker: 0xffffff, trunk: 0x7a4b2a, leaf: 0x5c9e4a, leaf2: 0xa8c95a, rock: 0xb08a5a, sand: 0xc98f4a },
+          song: {
+            bpm: 118, voice: "marimba", arpVoice: "pluck", arpVol: 0.04, pad: true, melVol: 0.11,
+            chords: [{ b: 41, t: [65, 69, 72] }, { b: 36, t: [60, 64, 67] }, { b: 38, t: [62, 65, 69] }, { b: 46, t: [58, 62, 65] }],
+            arp: [0, 1, 2, 1, 0, 2, 1, 2], bass: [[0, 0, 0.3], [6, 0, 0.18], [8, 7, 0.22], [12, 0, 0.2], [14, 12, 0.16]],
+            drums: { kick: [0, 5, 8, 10], snare: [4, 12], hat: [2, 6, 10, 14], open: [14], kickVol: 0.42, snareVol: 0.15, hatVol: 0.05 },
+            melody: [[0, 77, 1], [4, 79, 1], [8, 81, 1.5], [12, 79, 0.5], [14, 77, 0.5], [16, 74, 1], [20, 77, 1], [24, 72, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.8, style: "savanna", cam: 1.14 },
+            { bars: 4, phrase: [2], w: 2.8, style: "savanna" },
+            { bars: 4, phrase: [2, 2, 1, 1], w: 2.6, style: "savanna" },
+            { bars: 4, phrase: [4, 2, 2], w: 2.6, style: "savanna", walls: true },
+            { bars: 4, phrase: [1, 1, 2], w: 2.6, style: "savanna" },
+            { bars: 4, phrase: [2, 1, 1, 4], w: 2.4, style: "savanna", reveal: "drop" },
+            { bars: 4, phrase: [1, 1, 1, 1, 2, 2], w: 2.4, style: "savanna", walls: true },
+            { bars: 4, phrase: [2], w: 2.4, style: "savanna", cam: 1.1 },
+            { bars: 4, phrase: [4, 1, 1, 2], w: 2.4, style: "savanna", walls: true },
+            { bars: 4, phrase: [2, 2, 4], w: 2.6, style: "savanna", cam: 1.16 },
+          ],
+        },
+        {
+          id: "desert", name: "The Desert", stars: 3, bpm: 120, upb: 3.0, clouds: 0xfff3dd,
+          ground: { y: GROUND_Y, color: 0xe3b278 }, sunDisc: { color: 0xffd58a, size: 11 },
+          ambient: { type: "dust", color: 0xfff0d0, size: 0.14, opacity: 0.35, count: 120 },
+          colors: { sky: 0xf7b267, horizon: 0xffe9c8, fog: 0xf9dcb0, floorTop: 0xffd89a, floorSide: 0xc98a4f, line: 0x1fb8a8, wall: 0xe8b77a, gem: 0x3dd6f5, rock: 0xb27a4f, sun: 0xffd9a0, marker: 0xffffff, sand: 0xf0c48a },
+          song: {
+            bpm: 120, voice: "pluck", arpVoice: "pluck", arpVol: 0.045, pad: true, melVol: 0.12,
+            chords: [{ b: 50, t: [62, 65, 69] }, { b: 46, t: [58, 62, 65] }, { b: 48, t: [60, 64, 67] }, { b: 45, t: [57, 61, 64] }],
+            arp: [0, 2, 1, 2, 0, 2, 1, 0], bass: [[0, 0, 0.3], [3, 0, 0.18], [6, 0, 0.22], [8, 0, 0.26], [11, 3, 0.16], [14, -2, 0.2]],
+            drums: { kick: [0, 6, 8, 14], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], open: [10], kickVol: 0.4, snareVol: 0.16, hatVol: 0.045 },
+            melody: [[0, 74, 0.5], [2, 77, 0.5], [4, 76, 1], [8, 74, 0.5], [10, 72, 0.5], [12, 73, 1], [16, 74, 0.5], [18, 77, 0.5], [20, 81, 1], [24, 79, 0.5], [26, 77, 0.5], [28, 76, 1]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.6, style: "desert", cam: 1.14 },
+            { bars: 4, phrase: [2], w: 2.6, style: "desert" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.4, style: "desert" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.4, style: "desert", walls: true },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 2.4, style: "desert", reveal: "drop", cam: 0.94 },
+            { bars: 4, phrase: [2, 2, 1, 1, 2], w: 2.2, style: "desert" },
+            { bars: 4, phrase: [4, 2, 2], w: 2.2, style: "desert", walls: true },
+            { bars: 4, phrase: [1, 1, 2], w: 2.2, style: "desert" },
+            { bars: 4, phrase: [1, 1, 1, 1, 2, 2], w: 2.0, style: "desert", walls: true, cam: 0.92 },
+            { bars: 4, phrase: [2], w: 2.0, style: "desert", reveal: "drop" },
+            { bars: 4, phrase: [4], w: 2.2, style: "desert", cam: 1.16 },
+          ],
+        },
+        {
+          id: "autumn", name: "The Autumn", stars: 3, bpm: 112, upb: 2.9, birds: true, clouds: 0xfff2e6,
+          ground: { y: GROUND_Y, color: 0xcf8a4b },
+          ambient: { type: "leaves", color: 0xff9f43, size: 0.17, opacity: 0.75, count: 120 },
+          colors: { sky: 0xffc7a0, horizon: 0xfff0df, fog: 0xffe2c9, floorTop: 0xfff1d6, floorSide: 0xd9b48a, line: 0xc0392b, wall: 0xf5deb3, gem: 0x4cc9f0, sun: 0xfff1d8, marker: 0xffffff, trunk: 0x6e4326, leaf: 0xe8742c, leaf2: 0xd2452c, accent: 0xff8c3a, accent2: 0xf4c542, rock: 0x9c8b7a, sand: 0xe6c27a },
+          song: {
+            bpm: 112, voice: "piano", arpVoice: "piano", arpVol: 0.035, pad: true, melVol: 0.13,
+            chords: [{ b: 43, t: [55, 59, 62] }, { b: 40, t: [52, 55, 59] }, { b: 36, t: [60, 64, 67] }, { b: 38, t: [62, 66, 69] }],
+            arp: [0, 1, 2, 1, 0, 1, 2, 1], bass: [[0, 0, 0.28], [8, 0, 0.2], [12, 7, 0.16]],
+            drums: { kick: [0, 8], snare: [4, 12], hat: [2, 6, 10, 14], open: [], kickVol: 0.32, snareVol: 0.11, hatVol: 0.04 },
+            melody: [[0, 74, 1], [4, 71, 1], [8, 67, 1], [12, 69, 1], [16, 71, 1.5], [20, 69, 0.5], [22, 67, 0.5], [24, 62, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.6, style: "autumn", cam: 1.12 },
+            { bars: 4, phrase: [2], w: 2.6, style: "autumn" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.4, style: "autumn" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.4, style: "autumn", walls: true },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 2.4, style: "autumn", reveal: "drop" },
+            { bars: 4, phrase: [2, 2, 1, 1, 2], w: 2.2, style: "autumn" },
+            { bars: 4, phrase: [4, 1, 1, 2], w: 2.2, style: "autumn", walls: true },
+            { bars: 4, phrase: [1, 1, 2, 2, 1, 1], w: 2.2, style: "autumn", cam: 0.95 },
+            { bars: 4, phrase: [1, 1, 1, 1, 4], w: 2.0, style: "autumn", walls: true },
+            { bars: 4, phrase: [2], w: 2.2, style: "autumn", reveal: "drop" },
+            { bars: 4, phrase: [4], w: 2.4, style: "autumn", cam: 1.16 },
+          ],
+        },
+        {
+          id: "winter", name: "The Winter", stars: 4, bpm: 128, upb: 3.2, clouds: 0xffffff,
+          ground: { y: GROUND_Y, color: 0xf2f8ff },
+          ambient: { type: "snow", color: 0xffffff, size: 0.16, opacity: 0.85, count: 260 },
+          colors: { sky: 0x9fd0ff, horizon: 0xf3f9ff, fog: 0xe4f1ff, floorTop: 0xbfe0ff, floorSide: 0x7fb0e0, line: 0x2f6fd6, wall: 0xdaeeff, gem: 0xff5d9e, trunk: 0x6b4a36, leaf: 0x2f7a5c, rock: 0x9fb0c2, sun: 0xffffff, marker: 0x2f6fd6 },
+          song: {
+            bpm: 128, voice: "bell", arpVoice: "pluck", arpVol: 0.04, pad: true, melVol: 0.1,
+            chords: [{ b: 45, t: [57, 60, 64] }, { b: 41, t: [53, 57, 60] }, { b: 36, t: [60, 64, 67] }, { b: 43, t: [55, 59, 62] }],
+            arp: [0, 1, 2, 1, 0, 2, 1, 2], bass: [[0, 0, 0.3], [6, 0, 0.2], [8, 12, 0.22], [14, 7, 0.2]],
+            drums: { kick: [0, 4, 8, 12], snare: [4, 12], hat: [2, 6, 10, 14], open: [14], kickVol: 0.45, snareVol: 0.17, hatVol: 0.06 },
+            melody: [[0, 81, 1], [4, 84, 1], [8, 83, 0.5], [10, 81, 0.5], [12, 79, 1], [16, 76, 1], [20, 79, 1], [24, 81, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.4, style: "winter", cam: 1.12 },
+            { bars: 4, phrase: [2], w: 2.4, style: "winter" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.2, style: "winter" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.2, style: "winter", walls: true },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 2.2, style: "winter", reveal: "drop", cam: 0.94 },
+            { bars: 4, phrase: [1, 1, 2, 2, 1, 1], w: 2.0, style: "winter", walls: true },
+            { bars: 4, phrase: [2, 2, 4], w: 2.0, style: "winter" },
+            { bars: 4, phrase: [1, 1, 1, 1, 2], w: 2.0, style: "winter", reveal: "drop" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 1.9, style: "winter", walls: true, cam: 0.92 },
+            { bars: 4, phrase: [2, 1, 1, 4], w: 2.0, style: "winter" },
+            { bars: 4, phrase: [4], w: 2.2, style: "winter", cam: 1.16 },
+          ],
+        },
+        {
+          id: "cave", name: "The Cave", stars: 4, bpm: 122, upb: 3.1, light: 0.85, stars_: 0.6, clouds: false,
+          ambient: { type: "fireflies", color: 0x9ff5ff, size: 0.14, opacity: 0.85, count: 70 },
+          colors: { sky: 0x1b1f3a, horizon: 0x3a2f6b, fog: 0x2a2650, floorTop: 0x5d5a8a, floorSide: 0x3b3860, line: 0xffe66d, wall: 0x4a4675, gem: 0xff4d6d, rock: 0x55507a, sun: 0x6a5cff, marker: 0xffe66d },
+          song: {
+            bpm: 122, voice: "bell", arpVoice: "pluck", arpVol: 0.035, pad: true, melVol: 0.09,
+            chords: [{ b: 40, t: [64, 67, 71] }, { b: 36, t: [60, 64, 67] }, { b: 38, t: [62, 66, 69] }, { b: 35, t: [59, 62, 66] }],
+            arp: [0, 1, 2, 1], bass: [[0, 0, 0.32], [8, 0, 0.24], [12, 0, 0.18]],
+            drums: { kick: [0, 8, 10], snare: [4, 12], hat: [2, 6, 10, 14], open: [], kickVol: 0.5, snareVol: 0.14, hatVol: 0.035 },
+            melody: [[0, 76, 1], [4, 79, 1], [8, 78, 0.5], [10, 76, 0.5], [12, 74, 1.5], [16, 71, 1], [20, 74, 1], [24, 76, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.2, style: "cave", cam: 1.08 },
+            { bars: 4, phrase: [2], w: 2.2, style: "cave" },
+            { bars: 4, phrase: [2, 1, 1], w: 2.0, style: "cave", walls: true },
+            { bars: 4, phrase: [1, 1, 2], w: 2.0, style: "cave" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 2.0, style: "cave", walls: true, reveal: "drop", cam: 0.92 },
+            { bars: 4, phrase: [2, 1, 1, 4], w: 1.9, style: "cave" },
+            { bars: 4, phrase: [1, 1, 1, 1, 2, 2], w: 1.9, style: "cave", walls: true },
+            { bars: 4, phrase: [2, 2, 1, 1, 2], w: 1.8, style: "cave", reveal: "drop" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 1.8, style: "cave", walls: true, cam: 0.9 },
+            { bars: 4, phrase: [2], w: 1.9, style: "cave" },
+            { bars: 4, phrase: [4], w: 2.1, style: "cave", cam: 1.14 },
+          ],
+        },
+        {
+          id: "storm", name: "The Storm", stars: 5, bpm: 132, upb: 3.2, light: 0.75, weather: "storm", clouds: 0x46536e,
+          ground: { y: GROUND_Y, color: 0x2f3a52 },
+          ambient: { type: "rain", color: 0xbfd2ff, size: 0.1, opacity: 0.45, count: 340 },
+          colors: { sky: 0x1c2540, horizon: 0x54617f, fog: 0x3f4a66, floorTop: 0x8d9bb8, floorSide: 0x5a6684, line: 0xffe66d, wall: 0x6f7d9c, gem: 0x7ee8fa, trunk: 0x2b2f3d, leaf: 0x3b4a5e, rock: 0x4c566e, sun: 0x9fb2ff, marker: 0xffe66d, snow: 0x9aa7c2 },
+          song: {
+            bpm: 132, voice: "pluck", arpVoice: "pluck", arpVol: 0.05, pad: true, melVol: 0.12,
+            chords: [{ b: 40, t: [64, 67, 71] }, { b: 36, t: [60, 64, 67] }, { b: 45, t: [57, 60, 64] }, { b: 47, t: [59, 63, 66] }],
+            arp: [0, 2, 1, 2, 0, 2, 1, 0], bass: [[0, 0, 0.32], [3, 0, 0.2], [6, 0, 0.24], [8, 0, 0.28], [11, 0, 0.2], [14, -2, 0.2]],
+            drums: { kick: [0, 4, 8, 12], snare: [4, 12], hat: [0, 2, 4, 6, 8, 10, 12, 14], open: [6, 14], kickVol: 0.5, snareVol: 0.2, hatVol: 0.06 },
+            melody: [[0, 76, 0.5], [2, 79, 0.5], [4, 83, 0.5], [6, 79, 0.5], [8, 81, 1], [12, 79, 0.5], [14, 76, 0.5], [16, 74, 1], [20, 76, 0.5], [22, 79, 0.5], [24, 83, 2]],
+          },
+          sections: [
+            { bars: 4, phrase: [4], w: 2.2, style: "storm", cam: 1.1 },
+            { bars: 4, phrase: [2], w: 2.2, style: "storm" },
+            { bars: 4, phrase: [1, 1, 2], w: 2.0, style: "storm", walls: true },
+            { bars: 4, phrase: [2, 1, 1], w: 2.0, style: "storm" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 1.9, style: "storm", walls: true, reveal: "drop", cam: 0.93 },
+            { bars: 4, phrase: [1, 1, 2, 2, 1, 1], w: 1.9, style: "storm" },
+            { bars: 4, phrase: [2, 2, 1, 1, 1, 1], w: 1.8, style: "storm", walls: true, cam: 0.92 },
+            { bars: 4, phrase: [1, 1, 1, 1, 2], w: 1.8, style: "storm", reveal: "drop" },
+            { bars: 4, phrase: [1, 1, 1, 1], w: 1.7, style: "storm", walls: true, cam: 0.9 },
+            { bars: 4, phrase: [2, 1, 1, 4], w: 1.8, style: "storm" },
+            { bars: 4, phrase: [1, 1, 1, 1, 1, 1, 2], w: 1.7, style: "storm", walls: true, cam: 0.9 },
+            { bars: 4, phrase: [4], w: 2.0, style: "storm", cam: 1.12 },
+          ],
+        },
+      ];
+
+      const CROWN_PCTS = [0.2, 0.5, 0.8];
+      const GEM_PCTS = [0.06, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.94];
+
+      /* ================================================================
+         4. CONSTANTS + SAVE
+         ================================================================ */
+      const LINE_W = 0.6, LINE_H = 0.45, FLOOR_H = 0.9, WALL_T = 0.5, WALL_H = 1.1;
+      const STUB = 1.5;          // Runway start
+      const REVEAL_BEATS = 5;    // Path builds ahead
+      const CELL_GAP = 0.12;     // Visible seam between path cubes
+      const CELL_LOOK = 14;      // Maximum cell reveal horizon
+      const SPEED_MULT = 1.22;   // Line Speed Multiplier (increases line velocity and syncs music tempo)
+      const PATH_WIDTH_MULT = 0.78;
+      const LEAD = 2.4;          // Camera lead
+      const PICK_R = 0.75;
+      const SAVE_KEY = "dancingline.save.v4";
+
+      function loadSave() {
+        try {
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith("dancingline.") && k !== SAVE_KEY) {
+              localStorage.removeItem(k);
+            }
+          }
+        } catch (e) { /* ignore */ }
+
+        let s = {};
+        try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}") || {}; } catch (e) { s = {}; }
+        return {
+          levels: s.levels || {},
+          last: s.last || 0,
+          skin: s.skin || "default",
+          skins: s.skins || { default: true },
+          totalGems: s.totalGems || 0,
+          settings: Object.assign({ music: true, sfx: true, shake: true }, s.settings || {}),
+        };
+      }
+      function storeSave(s) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ } }
+      function recFor(save, id) {
+        if (!save.levels[id]) save.levels[id] = { best: 0, gems: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], crowns: [0, 0, 0], done: false, kept: 0 };
+        const r = save.levels[id]; if (!r.crowns) r.crowns = [0, 0, 0]; if (r.kept == null) r.kept = 0; return r;
+      }
+      function isUnlocked(save, i) {
+        if (i <= 0) return true;
+        const p = recFor(save, LEVELS[i - 1].id);
+        return p.crowns[0] === 1 || p.best >= 20 || p.done;
+      }
+
