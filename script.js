@@ -547,3 +547,110 @@
         return p.crowns[0] === 1 || p.best >= 20 || p.done;
       }
 
+      /* ================================================================
+         5. PARTICLES, AMBIENT WEATHER, BIRDS
+         ================================================================ */
+      class Particles {
+        constructor(scene, n) {
+          this.pool = []; const geo = new THREE.BoxGeometry(1, 1, 1);
+          for (let i = 0; i < n; i++) {
+            const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ transparent: true })); m.visible = false; scene.add(m);
+            this.pool.push({ mesh: m, vel: new THREE.Vector3(), spin: new THREE.Vector3(), life: 0, max: 1, size: 0.1, g: 10, on: false });
+          }
+        }
+        burst(pos, colors, n, o = {}) {
+          const speed = o.speed || 3, up = o.up || 2, g = o.gravity || 10, spin = o.spin || 7, life = o.life || 0.6, size = o.size || 0.1, add = o.additive !== false;
+          let k = 0;
+          for (const p of this.pool) {
+            if (p.on) continue;
+            p.on = true; p.mesh.visible = true; p.mesh.position.copy(pos);
+            const a = Math.random() * Math.PI * 2, r = Math.random();
+            p.vel.set(Math.cos(a) * speed * (0.35 + r * 0.65), up * (0.4 + Math.random() * 0.8) + r * speed * 0.3, Math.sin(a) * speed * (0.35 + r * 0.65));
+            p.spin.set((Math.random() - 0.5) * spin, (Math.random() - 0.5) * spin, (Math.random() - 0.5) * spin);
+            p.max = life * (0.6 + Math.random() * 0.7); p.life = p.max; p.size = size * (0.6 + Math.random() * 0.8); p.g = g;
+            const mat = p.mesh.material; mat.color.set(colors[Math.floor(Math.random() * colors.length)]);
+            mat.blending = add ? THREE.AdditiveBlending : THREE.NormalBlending; mat.depthWrite = !add; mat.opacity = 1;
+            p.mesh.scale.setScalar(p.size);
+            if (++k >= n) break;
+          }
+        }
+        update(dt) {
+          for (const p of this.pool) {
+            if (!p.on) continue;
+            p.life -= dt; if (p.life <= 0) { p.on = false; p.mesh.visible = false; continue; }
+            p.vel.y -= p.g * dt; p.mesh.position.addScaledVector(p.vel, dt);
+            p.mesh.rotation.x += p.spin.x * dt; p.mesh.rotation.y += p.spin.y * dt; p.mesh.rotation.z += p.spin.z * dt;
+            const u = p.life / p.max; p.mesh.scale.setScalar(p.size * (0.3 + 0.7 * u)); p.mesh.material.opacity = u;
+          }
+        }
+      }
+
+      class Ambient {
+        constructor(scene, n) {
+          this.n = n; this.pos = new Float32Array(n * 3); this.seed = new Float32Array(n);
+          for (let i = 0; i < n; i++) this.seed[i] = Math.random() * 100;
+          this.geo = new THREE.BufferGeometry(); this.geo.setAttribute("position", new THREE.BufferAttribute(this.pos, 3));
+          this.mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.16, transparent: true, opacity: 0.6, depthWrite: false, sizeAttenuation: true });
+          this.points = new THREE.Points(this.geo, this.mat); this.points.frustumCulled = false; this.points.visible = false; scene.add(this.points);
+          this.type = "none"; this.count = 0; this.yMin = -2; this.yMax = 14; this.R = 24;
+        }
+        set(cfg, yMin, cx, cz) {
+          this.type = cfg ? cfg.type : "none"; this.points.visible = this.type !== "none"; if (this.type === "none") return;
+          this.mat.color.set(cfg.color); this.mat.size = cfg.size; this.mat.opacity = cfg.opacity; this.count = Math.min(this.n, cfg.count);
+          this.yMin = yMin; this.yMax = this.type === "rain" ? 20 : this.type === "fireflies" ? 6 : 14;
+          this.geo.setDrawRange(0, this.count);
+          for (let i = 0; i < this.count; i++) {
+            this.pos[i * 3] = cx + (Math.random() - 0.5) * 2 * this.R;
+            this.pos[i * 3 + 1] = this.yMin + Math.random() * (this.yMax - this.yMin);
+            this.pos[i * 3 + 2] = cz + (Math.random() - 0.5) * 2 * this.R;
+          }
+          this.geo.attributes.position.needsUpdate = true;
+        }
+        update(dt, cx, cz, t) {
+          if (this.type === "none") return;
+          const p = this.pos, R = this.R, yMin = this.yMin, yMax = this.yMax, type = this.type, span = yMax - yMin;
+          for (let i = 0; i < this.count; i++) {
+            const j = i * 3, s = this.seed[i]; let vx = 0, vy = 0, vz = 0;
+            if (type === "snow") { vx = Math.sin(t * 0.7 + s) * 0.5; vy = -1.3; vz = Math.cos(t * 0.5 + s) * 0.4; }
+            else if (type === "rain") { vx = -1.5; vy = -24; vz = -1.5; }
+            else if (type === "dust") { vx = 1.4; vy = Math.sin(t + s) * 0.3; vz = 0.6; }
+            else if (type === "fireflies") { vx = Math.sin(t * 0.9 + s * 3) * 0.6; vy = Math.cos(t * 0.7 + s * 5) * 0.4; vz = Math.sin(t * 0.6 + s * 7) * 0.6; }
+            else if (type === "petals" || type === "leaves") { vx = Math.sin(t * 1.3 + s) * 1.2; vy = -0.9; vz = 0.8 + Math.cos(t + s) * 0.5; }
+            else if (type === "sparkle") { vx = Math.sin(t + s) * 0.2; vy = 0.5; vz = Math.cos(t * 0.8 + s) * 0.2; }
+            let x = p[j] + vx * dt, y = p[j + 1] + vy * dt, z = p[j + 2] + vz * dt;
+            if (x < cx - R) x += 2 * R; else if (x > cx + R) x -= 2 * R;
+            if (z < cz - R) z += 2 * R; else if (z > cz + R) z -= 2 * R;
+            if (y < yMin) y += span; else if (y > yMax) y -= span;
+            p[j] = x; p[j + 1] = y; p[j + 2] = z;
+          }
+          this.geo.attributes.position.needsUpdate = true;
+        }
+      }
+
+      class Birds {
+        constructor(scene) {
+          this.g = new THREE.Group(); this.g.visible = false; scene.add(this.g);
+          const mat = new THREE.MeshBasicMaterial({ color: 0x2b2f45 }), box = new THREE.BoxGeometry(1, 1, 1); this.wings = [];
+          for (let i = 0; i < 6; i++) {
+            const b = new THREE.Group(); const L = new THREE.Mesh(box, mat), R = new THREE.Mesh(box, mat);
+            L.scale.set(0.55, 0.05, 0.16); L.position.x = -0.28; R.scale.set(0.55, 0.05, 0.16); R.position.x = 0.28; b.add(L, R);
+            b.position.set((i % 2 ? -1 : 1) * i * 0.9, -i * 0.1, -i * 1.1); this.g.add(b); this.wings.push({ L, R, ph: i * 0.7 });
+          }
+          this.enabled = false; this.t = 0; this.wait = 6; this.flying = false;
+        }
+        setEnabled(on) { this.enabled = on; this.flying = false; this.g.visible = false; this.wait = 5 + Math.random() * 6; }
+        update(dt, time, cx, cz) {
+          if (!this.enabled) return;
+          if (!this.flying) {
+            this.wait -= dt; if (this.wait > 0) return;
+            this.flying = true; this.t = 0; const dir = Math.random() < 0.5 ? 1 : -1;
+            this.from = { x: cx + 26 * dir, z: cz - 26 * dir }; this.to = { x: cx - 26 * dir, z: cz + 26 * dir };
+            this.g.visible = true; this.g.rotation.y = Math.atan2(this.to.x - this.from.x, this.to.z - this.from.z); return;
+          }
+          this.t += dt / 9; const u = this.t;
+          if (u >= 1) { this.flying = false; this.g.visible = false; this.wait = 10 + Math.random() * 10; return; }
+          this.g.position.set(this.from.x + (this.to.x - this.from.x) * u, 10.5 + Math.sin(u * 6) * 0.4, this.from.z + (this.to.z - this.from.z) * u);
+          for (const w of this.wings) { const a = Math.sin(time * 9 + w.ph) * 0.65; w.L.rotation.z = a; w.R.rotation.z = -a; }
+        }
+      }
+
