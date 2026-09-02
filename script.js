@@ -1935,3 +1935,297 @@
         }
       }
 
+      /* ================================================================
+         7. USER INTERFACE
+         ================================================================ */
+      const $ = (id) => document.getElementById(id);
+      const el = {
+        stage: $("stage"), hud: $("hud"), barFill: $("barFill"), pct: $("pct"), gemPill: $("gemPill"), gemVal: $("gemVal"), practiceChip: $("practiceChip"),
+        intro: $("intro"), introName: $("introName"), introStars: $("introStars"), introTag: $("introTag"), introTap: $("introTap"), tapNow: $("tapNow"),
+        pauseBtn: $("pauseBtn"), muteBtn: $("muteBtn"), icoSound: $("icoSound"), icoMute: $("icoMute"),
+        fx: $("fx"), toast: $("toast"), toastText: $("toastText"), toastCrown: $("toastCrown"), toastStar: $("toastStar"), flash: $("flash"), fader: $("fader"),
+        home: $("home"), totalGems: $("totalGems"), carousel: $("carousel"), card: $("card"), prevBtn: $("prevBtn"), nextBtn: $("nextBtn"), dots: $("dots"),
+        tabJourney: $("tabJourney"), tabSkin: $("tabSkin"), tabSettings: $("tabSettings"),
+        skinScr: $("skinScr"), skinGrid: $("skinGrid"), skinNote: $("skinNote"), skinClose: $("skinClose"),
+        settingsScr: $("settingsScr"), swMusic: $("swMusic"), swSfx: $("swSfx"), swShake: $("swShake"), settingsClose: $("settingsClose"), resetBtn: $("resetBtn"),
+        pauseScr: $("pauseScr"), resumeBtn: $("resumeBtn"), pRestartBtn: $("pRestartBtn"), pLevelsBtn: $("pLevelsBtn"),
+        overScr: $("overScr"), overTitle: $("overTitle"), overPct: $("overPct"), overBest: $("overBest"), overFill: $("overFill"), overBestVal: $("overBestVal"), overGems: $("overGems"), continueBtn: $("continueBtn"), continueLabel: $("continueLabel"), continueCnt: $("continueCnt"), retryBtn: $("retryBtn"), oLevelsBtn: $("oLevelsBtn"),
+        doneScr: $("doneScr"), doneTitle: $("doneTitle"), perfectBadge: $("perfectBadge"), doneGems: $("doneGems"), doneCrowns: $("doneCrowns"), doneNote: $("doneNote"), nextBtn2: $("nextBtn2"), replayBtn: $("replayBtn"), dLevelsBtn: $("dLevelsBtn"),
+      };
+      const crownMarks = Array.from(document.querySelectorAll("#barTrack .crownMark"));
+      const home = { idx: 0, dx: 0, dragging: false, suppress: 0, timer: null };
+      const stars = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+
+      const ui = {
+        levelLoaded(def, mode, info) {
+          this.hideOverlays(); el.home.classList.add("hidden");
+          el.hud.classList.remove("hidden"); el.pauseBtn.classList.remove("hidden");
+          el.introName.textContent = def.name; el.introStars.textContent = stars(def.stars);
+          el.introTag.textContent = mode === "continue" ? "Continue from crown · " + info.left + " left" : mode === "practice" ? "Practice · from " + info.pct + "%" : "Level " + (LEVELS.indexOf(def) + 1);
+          el.introTap.textContent = mode === "continue" ? "Tap to continue" : "Tap to play";
+          el.intro.classList.remove("out"); el.tapNow.classList.add("hidden");
+          el.practiceChip.classList.toggle("hidden", mode !== "practice" && !(mode === "continue" && game.practice != null));
+          if (mode !== "continue") { this.setPct(info.pct || 0); el.gemVal.textContent = "0"; crownMarks.forEach((m) => { m.className = "crownMark"; }); }
+        },
+        runStarted() { el.intro.classList.add("out"); },
+        setPct(p) {
+          el.barFill.style.width = p + "%"; el.pct.textContent = p + "%";
+          if (p > 0 && p % 10 === 0) { el.pct.classList.remove("bump"); requestAnimationFrame(() => el.pct.classList.add("bump")); }
+        },
+        setGems(n) { el.gemVal.textContent = n; el.gemPill.classList.remove("bump"); requestAnimationFrame(() => el.gemPill.classList.add("bump")); },
+        setCrown(i, state, pop) { const m = crownMarks[i]; m.className = "crownMark" + (state === "none" ? "" : " " + state); if (pop) { m.classList.remove("pop"); requestAnimationFrame(() => m.classList.add("pop")); } },
+        showTapNow(on) { el.tapNow.classList.toggle("hidden", !on); },
+        showPause(on) { el.pauseScr.classList.toggle("hidden", !on); },
+        hideOverlays() { el.pauseScr.classList.add("hidden"); el.overScr.classList.add("hidden"); el.doneScr.classList.add("hidden"); el.settingsScr.classList.add("hidden"); el.skinScr.classList.add("hidden"); },
+        toast(text, kind) { el.toastText.textContent = text; el.toastCrown.classList.toggle("hidden", kind !== "crown"); el.toastStar.classList.toggle("hidden", kind !== "star"); el.toast.classList.remove("show"); requestAnimationFrame(() => el.toast.classList.add("show")); },
+        flash() { el.flash.classList.remove("on"); requestAnimationFrame(() => el.flash.classList.add("on")); },
+        ripple(x, y) { const d = document.createElement("div"); d.className = "ripple"; d.style.left = x + "px"; d.style.top = y + "px"; el.fx.appendChild(d); setTimeout(() => d.remove(), 520); },
+        fadeThrough(color, fn) { el.fader.style.background = color; el.fader.classList.add("on"); clearTimeout(this._ft); this._ft = setTimeout(() => { fn(); setTimeout(() => el.fader.classList.remove("on"), 60); }, 270); },
+
+        showOver(i) {
+          el.overTitle.textContent = i.practice ? "Practice run" : "You reached";
+          el.overPct.textContent = i.pct; el.overFill.style.width = i.pct + "%";
+          el.overBest.classList.toggle("hidden", !(i.newBest && i.pct > 0)); el.overBestVal.textContent = i.best + "%"; el.overGems.textContent = i.gems + "/10";
+          i.crowns.forEach((st, k) => { $("oc" + k).className = "crownMark" + (st === "none" ? "" : " " + st); });
+          el.continueBtn.classList.toggle("hidden", i.left <= 0);
+          el.continueLabel.textContent = "Continue";
+          if (el.continueCnt) el.continueCnt.textContent = i.left + " left";
+          el.overScr.classList.remove("hidden");
+        },
+        showComplete(i) {
+          el.doneTitle.textContent = i.practice ? "Practice complete" : "Level complete";
+          el.doneGems.textContent = i.gems + "/10"; el.doneCrowns.textContent = i.kept + "/3";
+          i.crowns.forEach((st, k) => { $("dc" + k).setAttribute("class", st); });
+          const perfect = !i.practice && i.gems === 10 && i.kept === 3; el.perfectBadge.classList.toggle("hidden", !perfect);
+          el.doneNote.textContent = i.practice ? "Practice runs don't count towards records." : i.kept < 3 ? "Finish without spending crowns for a perfect run." : i.gems < 10 ? "Collect all 10 diamonds for a perfect run." : "Flawless — every diamond and every crown!";
+          el.nextBtn2.classList.toggle("hidden", !i.next);
+          el.doneScr.classList.remove("hidden"); this.toast(i.practice ? "Practice complete" : "Level complete", "star");
+        },
+
+        showHome() {
+          this.hideOverlays(); el.hud.classList.add("hidden"); el.pauseBtn.classList.add("hidden"); el.home.classList.remove("hidden");
+          home.idx = game.levelIdx; this.focusLevel(home.idx, 0, true); this.updateWallet();
+        },
+        focusLevel(i, dir, immediate) {
+          i = clamp(i, 0, LEVELS.length - 1); home.idx = i; this.renderCard(dir); this.renderDots();
+          clearTimeout(home.timer);
+          const swap = () => { if (game.levelIdx !== i || game.state !== "home") { const fog = hex(LEVELS[i].colors.fog); this.fadeThrough(fog, () => { game.loadLevel(i, { backdrop: true }); this.preview(i); }); } else this.preview(i); };
+          if (immediate) swap(); else home.timer = setTimeout(swap, 260);
+        },
+        preview(i) { if (game.audio.ctx && game.settings.music) game.audio.start(LEVELS[i].song, 0, 0.3); },
+        renderDots() {
+          el.dots.innerHTML = LEVELS.map((d, k) => `<span class="${k === home.idx ? "on" : recFor(game.save, d.id).done ? "done" : ""}" data-idx="${k}" title="${d.name}"></span>`).join("");
+          el.dots.querySelectorAll("span").forEach((s) => {
+            s.addEventListener("click", () => {
+              const target = Number(s.dataset.idx);
+              if (target !== home.idx) {
+                game.audio.uiClick();
+                ui.focusLevel(target, target > home.idx ? 1 : -1);
+              }
+            });
+          });
+          el.prevBtn.disabled = home.idx === 0; el.nextBtn.disabled = home.idx === LEVELS.length - 1;
+        },
+        updateWallet() {
+          const g = game.save.totalGems || 0;
+          el.totalGems.textContent = g;
+          const sGems = $("skinTotalGems");
+          if (sGems) sGems.textContent = g;
+        },
+
+        /* Level card with 3-crown pedestal & Green START button */
+        renderCard(dir) {
+          const i = home.idx, def = LEVELS[i], rec = recFor(game.save, def.id), c = def.colors, unlocked = isUnlocked(game.save, i);
+          const g = rec.gems.reduce((a, b) => a + b, 0);
+
+          const pedestals = [0, 1, 2].map((k) =>
+            `<div class="podHex${rec.crowns[k] ? " got" : ""}"><svg><use href="#i-crown"/></svg></div>`
+          ).join("");
+
+          const practiceChips = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((p) =>
+            `<button class="chip" data-p="${p}" ${p <= rec.best || p === 0 ? "" : "disabled"} type="button">${p}%</button>`
+          ).join("");
+
+          el.card.innerHTML =
+            `<div class="preview" style="background:linear-gradient(180deg, ${hex(c.sky)} 0%, ${hex(c.horizon)} 52%, ${hex(c.floorTop)} 53%, ${hex(c.floorSide)} 100%)">` +
+            `<svg class="zig" viewBox="0 0 100 60" preserveAspectRatio="none">` +
+            `<circle cx="76" cy="14" r="8" fill="${hex(c.sun || 0xffffff)}" opacity=".9"/>` +
+            `<polygon points="0,31.5 14,21 30,31.5" fill="${hex(c.floorSide)}" opacity=".5"/>` +
+            `<polygon points="20,31.5 40,16 62,31.5" fill="${hex(c.floorSide)}" opacity=".35"/>` +
+            `<polyline class="dash" points="6,56 26,38 42,50 62,26 78,36 96,10" fill="none" stroke="${hex(c.line)}" stroke-width="3.2" stroke-linejoin="miter"/>` +
+            `</svg>` +
+            `<div class="num">${String(i + 1).padStart(2, "0")}</div>` +
+            `<div class="lvlBadge">Level ${i + 1}</div>` +
+            (unlocked ? "" : `<div class="lock"><svg><use href="#i-lock"/></svg><span>Collect the first crown in<br>${LEVELS[i - 1].name} to unlock</span></div>`) +
+            `</div>` +
+            `<div class="cardBody">` +
+            `<div class="cardHead"><div class="cardName">${def.name}</div><div class="cardStars">${stars(def.stars)}</div></div>` +
+            `<div class="podiumWrap">` +
+            `<div class="podium">${pedestals}</div>` +
+            `<div class="statGems"><svg><use href="#i-gem"/></svg><span>${g}/10</span></div>` +
+            `<div class="statPct">${rec.done ? '<span class="done">✓ 100%</span>' : "Best " + rec.best + "%"}</div>` +
+            `</div>` +
+            (unlocked ?
+              `<button class="startBtn" id="playBtn" type="button"><svg><use href="#i-play"/></svg>START</button>` +
+              `<div class="cardFoot"><button class="practiceToggle" id="practiceToggleBtn" type="button">Practice Mode</button></div>` +
+              `<div class="practiceRow hidden" id="practiceRow"><span>Start at:</span>${practiceChips}</div>` : "") +
+            `</div>`;
+
+          el.card.classList.remove("slideL", "slideR");
+          if (dir) { void el.card.offsetWidth; el.card.classList.add(dir > 0 ? "slideL" : "slideR"); }
+          if (!unlocked) return;
+
+          const guard = () => performance.now() < home.suppress;
+          $("playBtn").addEventListener("click", () => { if (guard()) return; this.startLevel(i, null); });
+          $("practiceToggleBtn").addEventListener("click", () => { if (guard()) return; game.audio.uiClick(); $("practiceRow").classList.toggle("hidden"); });
+          el.card.querySelectorAll(".chip").forEach((ch) => ch.addEventListener("click", () => { if (guard()) return; this.startLevel(i, Number(ch.dataset.p)); }));
+        },
+
+        startLevel(i, practice) {
+          game.audio.unlock(); game.audio.uiClick(); clearTimeout(home.timer);
+          this.fadeThrough(hex(LEVELS[i].colors.fog), () => game.loadLevel(i, { practice }));
+        },
+
+        /* Skins screen */
+        openSkins() {
+          el.skinScr.classList.remove("hidden");
+          this.renderSkinGrid();
+        },
+        renderSkinGrid() {
+          const cur = game.save.skin;
+          el.skinGrid.innerHTML = SKINS.map((s) => {
+            const owned = game.save.skins[s.id] || s.cost === 0;
+            const active = cur === s.id;
+            const bg = s.color != null ? hex(s.color) : "linear-gradient(135deg, #fff, #888)";
+            return (
+              `<div class="skinCard${active ? " active" : ""}" data-id="${s.id}">` +
+              `<div class="skinPreview" style="background:${bg}"></div>` +
+              `<div class="skinName">${s.name}</div>` +
+              `<div class="skinCost">${active ? "Equipped" : owned ? "Owned" : s.cost + " ◆"}</div>` +
+              `</div>`
+            );
+          }).join("");
+
+          el.skinGrid.querySelectorAll(".skinCard").forEach((c) => {
+            c.addEventListener("click", () => {
+              const id = c.dataset.id, s = SKINS.find((x) => x.id === id);
+              const owned = game.save.skins[id] || s.cost === 0;
+              if (owned) {
+                if (game.save.skin !== id) { game.save.skin = id; storeSave(game.save); game.refreshSkin(); }
+                game.audio.uiClick(); this.renderSkinGrid(); this.skinMessage(s.name + " equipped");
+              } else if (game.save.totalGems >= s.cost) {
+                game.save.totalGems -= s.cost; game.save.skins[id] = true; game.save.skin = id;
+                storeSave(game.save); game.audio.unlockJingle(); this.updateWallet(); game.refreshSkin();
+                this.renderSkinGrid(); this.skinMessage(s.name + " unlocked and equipped!");
+              } else {
+                game.audio.deny(); c.classList.add("denied"); setTimeout(() => c.classList.remove("denied"), 450);
+                this.skinMessage("Need " + (s.cost - game.save.totalGems) + " more diamonds for " + s.name, true);
+              }
+            });
+          });
+        },
+        skinMessage(text, bad) {
+          el.skinNote.textContent = text; el.skinNote.classList.toggle("bad", !!bad);
+          clearTimeout(this._skinT);
+          this._skinT = setTimeout(() => { el.skinNote.textContent = "Collect diamonds in levels to unlock new lines."; el.skinNote.classList.remove("bad"); }, 2400);
+        },
+
+        openSettings() { el.settingsScr.classList.remove("hidden"); this.syncSettings(); },
+        syncSettings() {
+          const s = game.settings;
+          el.swMusic.classList.toggle("on", s.music); el.swSfx.classList.toggle("on", s.sfx); el.swShake.classList.toggle("on", s.shake);
+        },
+      };
+
+      const game = new Game(el.stage, ui);
+      game.audio.setMusicOn(game.settings.music); game.audio.setSfxOn(game.settings.sfx);
+
+      // ---------------------------------------------------------- WIRING
+      const stop = (e) => { e.stopPropagation(); e.preventDefault(); };
+      el.pauseBtn.addEventListener("pointerdown", stop);
+      el.pauseBtn.addEventListener("click", (e) => { stop(e); game.togglePause(); });
+      el.resumeBtn.addEventListener("click", () => game.resume());
+      el.pRestartBtn.addEventListener("click", () => game.restart());
+      el.pLevelsBtn.addEventListener("click", () => game.goHome());
+      el.pauseScr.addEventListener("pointerdown", (e) => { if (e.target === el.pauseScr) game.resume(); });
+      el.continueBtn.addEventListener("click", () => game.revive());
+      el.retryBtn.addEventListener("click", () => game.restart());
+      el.oLevelsBtn.addEventListener("click", () => game.goHome());
+      el.nextBtn2.addEventListener("click", () => { const n = Math.min(LEVELS.length - 1, game.levelIdx + 1); ui.startLevel(n, null); });
+      el.replayBtn.addEventListener("click", () => game.restart());
+      el.dLevelsBtn.addEventListener("click", () => game.goHome());
+
+      // Bottom navigation tabs
+      el.tabJourney.addEventListener("click", () => { game.audio.uiClick(); });
+      el.tabSkin.addEventListener("click", () => { game.audio.uiClick(); ui.openSkins(); });
+      el.tabSettings.addEventListener("click", () => { game.audio.uiClick(); ui.openSettings(); });
+      el.skinClose.addEventListener("click", () => el.skinScr.classList.add("hidden"));
+      el.skinScr.addEventListener("pointerdown", (e) => { if (e.target === el.skinScr) el.skinScr.classList.add("hidden"); });
+
+      // Level carousel
+      el.prevBtn.addEventListener("click", () => { game.audio.uiClick(); ui.focusLevel(home.idx - 1, -1); });
+      el.nextBtn.addEventListener("click", () => { game.audio.uiClick(); ui.focusLevel(home.idx + 1, 1); });
+      el.carousel.addEventListener("pointerdown", (e) => { home.dragging = true; home.sx = e.clientX; home.dx = 0; el.card.style.transition = "none"; });
+      window.addEventListener("pointermove", (e) => { if (!home.dragging) return; home.dx = e.clientX - home.sx; el.card.style.transform = "translateX(" + home.dx * 0.55 + "px)"; });
+      window.addEventListener("pointerup", () => {
+        if (!home.dragging) return; home.dragging = false; el.card.style.transition = ""; el.card.style.transform = "";
+        if (Math.abs(home.dx) > 50) {
+          home.suppress = performance.now() + 350;
+          const dir = home.dx < 0 ? 1 : -1;
+          if ((dir > 0 && home.idx < LEVELS.length - 1) || (dir < 0 && home.idx > 0)) {
+            game.audio.uiClick(); ui.focusLevel(home.idx + dir, dir);
+          }
+        }
+      });
+      window.addEventListener("pointercancel", () => { if (!home.dragging) return; home.dragging = false; el.card.style.transition = ""; el.card.style.transform = ""; });
+      window.addEventListener("keydown", (e) => {
+        if (game.state !== "home" || el.home.classList.contains("hidden") || !el.settingsScr.classList.contains("hidden") || !el.skinScr.classList.contains("hidden")) return;
+        if (e.code === "ArrowLeft") ui.focusLevel(home.idx - 1, -1);
+        else if (e.code === "ArrowRight") ui.focusLevel(home.idx + 1, 1);
+        else if ((e.code === "Enter" || e.code === "Space") && isUnlocked(game.save, home.idx)) { e.preventDefault(); ui.startLevel(home.idx, null); }
+      });
+
+      // Settings modal
+      el.settingsClose.addEventListener("click", () => el.settingsScr.classList.add("hidden"));
+      el.settingsScr.addEventListener("pointerdown", (e) => { if (e.target === el.settingsScr) el.settingsScr.classList.add("hidden"); });
+      const toggleSetting = (key) => {
+        game.settings[key] = !game.settings[key]; storeSave(game.save);
+        if (key === "music") { game.audio.setMusicOn(game.settings.music); if (game.settings.music && game.state === "home") ui.preview(home.idx); }
+        if (key === "sfx") game.audio.setSfxOn(game.settings.sfx);
+        ui.syncSettings(); game.audio.uiClick();
+      };
+      el.swMusic.addEventListener("click", () => toggleSetting("music"));
+      el.swSfx.addEventListener("click", () => toggleSetting("sfx"));
+      el.swShake.addEventListener("click", () => toggleSetting("shake"));
+      let resetArmedAt = -1e9, resetTimer = null;
+      const disarmReset = () => { resetArmedAt = -1e9; el.resetBtn.textContent = "Reset progress"; el.resetBtn.classList.remove("danger"); };
+      el.resetBtn.addEventListener("click", () => {
+        if (performance.now() - resetArmedAt > 3000) {
+          resetArmedAt = performance.now(); game.audio.uiClick();
+          el.resetBtn.textContent = "Tap again to confirm reset"; el.resetBtn.classList.add("danger");
+          clearTimeout(resetTimer); resetTimer = setTimeout(disarmReset, 3000);
+          return;
+        }
+        clearTimeout(resetTimer); disarmReset();
+        game.save.levels = {}; game.save.last = 0; game.save.skin = "default"; game.save.skins = { default: true }; game.save.totalGems = 0;
+        storeSave(game.save); game.audio.deny(); el.settingsScr.classList.add("hidden");
+        ui.updateWallet(); ui.focusLevel(0, -1); game.refreshSkin();
+      });
+      el.settingsClose.addEventListener("click", disarmReset);
+
+      let muted = false;
+      el.muteBtn.addEventListener("pointerdown", stop);
+      el.muteBtn.addEventListener("click", (e) => {
+        stop(e); muted = !muted; game.audio.unlock(); game.audio.setMuted(muted);
+        el.icoSound.classList.toggle("hidden", muted); el.icoMute.classList.toggle("hidden", !muted);
+        el.muteBtn.setAttribute("aria-label", muted ? "Unmute" : "Mute");
+      });
+
+      document.addEventListener("pointerdown", () => { game.audio.unlock(); if (game.state === "home") ui.preview(home.idx); }, { once: true, capture: true });
+
+      // Boot
+      game.loadLevel(clamp(game.save.last || 0, 0, LEVELS.length - 1), { backdrop: true });
+      ui.showHome();
+
+      window.addEventListener("contextmenu", (e) => e.preventDefault());
+      document.addEventListener("gesturestart", (e) => e.preventDefault());
